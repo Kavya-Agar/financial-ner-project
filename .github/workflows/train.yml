@@ -1,0 +1,78 @@
+name: Train and evaluate
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_epochs:
+        description: "Epochs for the 7-label base model (FiNER-ORD)"
+        default: "3"
+      extended_epochs:
+        description: "Epochs for the 17-label extended model (synthetic data)"
+        default: "10"
+      push_to_hub:
+        description: "Push trained models to Hugging Face (needs HF_TOKEN secret)"
+        type: boolean
+        default: true
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - run: pip install -r requirements.txt
+
+      - run: pytest tests/ -v
+
+      - name: Generate synthetic financial-entity data
+        run: python -m src.data.synthetic_data
+
+      - name: Train base 7-label model (FiNER-ORD)
+        run: >
+          python -m src.train.train_base
+          --epochs ${{ inputs.base_epochs }}
+          --output-dir models/financial-ner-v1
+
+      - name: Extend to 17 labels via real weight-transfer
+        run: >
+          python -m src.train.extend_model
+          --base-model-path models/financial-ner-v1
+          --synthetic-data-dir data/synthetic
+          --epochs ${{ inputs.extended_epochs }}
+          --output-dir models/financial-ner-extended
+
+      - name: Evaluate (per-entity precision/recall/F1)
+        run: >
+          python -m src.eval.evaluate
+          --model-path models/financial-ner-extended
+          --test-file data/synthetic/test.jsonl
+          --output metrics.json
+
+      - name: Regex postprocessing ablation (before/after)
+        run: >
+          python -m src.eval.ablation
+          --model-path models/financial-ner-extended
+          --test-file data/synthetic/test.jsonl
+          --output ablation.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: metrics
+          path: |
+            metrics.json
+            ablation.json
+
+      - name: Push trained models to Hugging Face
+        if: ${{ inputs.push_to_hub && env.HF_TOKEN != '' }}
+        run: |
+          pip install -U "huggingface_hub[cli]"
+          huggingface-cli upload kavyaagar/financial-ner-v1 models/financial-ner-v1 . --token "$HF_TOKEN" --repo-type model
+          huggingface-cli upload kavyaagar/financial-ner-extended models/financial-ner-extended . --token "$HF_TOKEN" --repo-type model --commit-message "Trained via GitHub Actions run ${{ github.run_id }}"
