@@ -2,7 +2,7 @@ services:
   - type: web
     name: financial-ner-backend
     env: docker
-    dockerfilePath: ./deploy/render/Dockerfile
+    dockerfilePath: ./deploy/backend/Dockerfile
     dockerContext: .
     plan: free
     envVars:

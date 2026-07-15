@@ -45,7 +45,7 @@ jobs:
           push: false
           tags: financial-ner-demo:ci
 
-  docker-build-render:
+  docker-build-backend:
     runs-on: ubuntu-latest
     needs: [backend-tests]
     steps:
@@ -54,6 +54,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: deploy/render/Dockerfile
+          file: deploy/backend/Dockerfile
           push: false
           tags: financial-ner-backend:ci
