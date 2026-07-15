@@ -1,0 +1,33 @@
+name: Deploy to Hugging Face Space
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -U "huggingface_hub"
+
+      - name: Push app files to the Space
+        run: |
+          hf upload kavyaagar/financial-ner-demo deploy/Dockerfile Dockerfile --repo-type space --token "$HF_TOKEN" --commit-message "Deploy: Dockerfile"
+          hf upload kavyaagar/financial-ner-demo deploy/space-readme.md README.md --repo-type space --token "$HF_TOKEN" --commit-message "Deploy: README"
+          hf upload kavyaagar/financial-ner-demo requirements.txt requirements.txt --repo-type space --token "$HF_TOKEN" --commit-message "Deploy: requirements.txt"
+          hf upload kavyaagar/financial-ner-demo conftest.py conftest.py --repo-type space --token "$HF_TOKEN" --commit-message "Deploy: conftest.py"
+          hf upload kavyaagar/financial-ner-demo backend/app.py backend/app.py --repo-type space --token "$HF_TOKEN" --commit-message "Deploy: backend"
+          hf upload kavyaagar/financial-ner-demo src/data/label_schema.py src/data/label_schema.py --repo-type space --token "$HF_TOKEN" --commit-message "Deploy: label schema"
+          hf upload kavyaagar/financial-ner-demo src/postprocess/regex_rules.py src/postprocess/regex_rules.py --repo-type space --token "$HF_TOKEN" --commit-message "Deploy: postprocessing"
+          hf upload kavyaagar/financial-ner-demo frontend frontend --repo-type space --token "$HF_TOKEN" \
+            --exclude "*.test.jsx" --exclude "setupTests.js" --exclude ".env.example" \
+            --exclude ".gitignore" --exclude ".oxlintrc.json" --exclude "README.md" \
+            --exclude "node_modules/*" --exclude "dist/*" \
+            --commit-message "Deploy: frontend"
