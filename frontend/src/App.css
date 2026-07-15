@@ -1,0 +1,277 @@
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.app-header h1 {
+  font-size: 28px;
+  margin: 0 0 4px;
+}
+
+.subtitle {
+  color: #52514e;
+  margin: 0 0 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .subtitle {
+    color: #c3c2b7;
+  }
+}
+
+.input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
+textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 10px 12px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid #c3c2b7;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.form-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+button[type='submit'] {
+  padding: 8px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background: #2a78d6;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+button[type='submit']:disabled {
+  background: #898781;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.status-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(42, 120, 214, 0.1);
+}
+
+.status-error {
+  background: rgba(227, 73, 72, 0.12);
+  border: 1px solid rgba(227, 73, 72, 0.4);
+  color: #b3201f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .status-error {
+    color: #ffb3b0;
+    background: rgba(227, 73, 72, 0.18);
+  }
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.results {
+  margin-top: 24px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.highlighted-text {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  padding: 16px;
+  border: 1px solid #e1e0d9;
+  border-radius: 6px;
+  overflow-wrap: break-word;
+}
+
+@media (prefers-color-scheme: dark) {
+  .highlighted-text {
+    border-color: #2c2c2a;
+  }
+}
+
+.entity-highlight {
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-weight: 600;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.no-entities {
+  font-style: italic;
+  color: #52514e;
+}
+
+@media (prefers-color-scheme: dark) {
+  .no-entities {
+    color: #c3c2b7;
+  }
+}
+
+.truncated-note {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #52514e;
+}
+
+@media (prefers-color-scheme: dark) {
+  .truncated-note {
+    color: #c3c2b7;
+  }
+}
+
+/*
+ * Entity colors - a validated categorical palette (8 hues, checked for
+ * colorblind-safe adjacent separation). Each label sets its own explicit
+ * background AND text color, chosen so the pairing clears >=4.5:1 contrast
+ * on its own -- this makes each highlight span readable regardless of the
+ * surrounding page's light/dark background, since it never relies on
+ * inherited page colors.
+ */
+.entity-PER {
+  background: #2a78d6;
+  color: #000000;
+}
+.entity-ORG {
+  background: #4a3aa7;
+  color: #ffffff;
+}
+.entity-LOC {
+  background: #1baf7a;
+  color: #000000;
+}
+.entity-AMOUNT {
+  background: #008300;
+  color: #ffffff;
+}
+.entity-DATE {
+  background: #eb6834;
+  color: #000000;
+}
+.entity-ACCOUNT {
+  background: #eda100;
+  color: #000000;
+}
+.entity-SSN {
+  background: #e34948;
+  color: #000000;
+}
+.entity-FORM {
+  background: #e87ba4;
+  color: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  .entity-PER {
+    background: #3987e5;
+    color: #000000;
+  }
+  .entity-ORG {
+    background: #9085e9;
+    color: #000000;
+  }
+  .entity-LOC {
+    background: #199e70;
+    color: #000000;
+  }
+  .entity-AMOUNT {
+    background: #008300;
+    color: #ffffff;
+  }
+  .entity-DATE {
+    background: #d95926;
+    color: #000000;
+  }
+  .entity-ACCOUNT {
+    background: #c98500;
+    color: #000000;
+  }
+  .entity-SSN {
+    background: #e66767;
+    color: #000000;
+  }
+  .entity-FORM {
+    background: #d55181;
+    color: #000000;
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 16px 12px 32px;
+  }
+  .form-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  button[type='submit'] {
+    width: 100%;
+  }
+}
