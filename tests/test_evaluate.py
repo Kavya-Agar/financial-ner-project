@@ -5,6 +5,8 @@ model/network). `bio_labels_to_entities` and `predict_word_labels` are
 exercised with the tiny offline tokenizer/model fixtures.
 """
 
+import json
+
 import pytest
 
 from src.eval.evaluate import bio_labels_to_entities, compute_entity_metrics, predict_word_labels
@@ -68,6 +70,26 @@ def test_compute_entity_metrics_multiple_entity_types():
     metrics = compute_entity_metrics(true, pred)
     assert set(metrics["per_entity"].keys()) == {"PER", "AMOUNT"}
     assert metrics["macro_f1"] == 1.0
+
+
+def test_compute_entity_metrics_output_is_json_serializable():
+    # Regression test: seqeval's classification_report returns numpy int64
+    # for "support" (and numpy float64 for the score fields under some
+    # seqeval/sklearn versions), which json.dumps cannot serialize on its
+    # own - this only surfaced when a real training run wrote metrics.json
+    # in CI, since the existing assertions above use `==` comparisons that
+    # pass for numpy scalars just as they would for native Python numbers.
+    true = [["PER_B", "O", "AMOUNT_B", "AMOUNT_I"]]
+    pred = [["PER_B", "O", "AMOUNT_B", "AMOUNT_I"]]
+    metrics = compute_entity_metrics(true, pred)
+    json.dumps(metrics)  # must not raise TypeError
+
+
+def test_compute_entity_metrics_support_is_plain_int():
+    true = [["PER_B", "PER_I", "O"]]
+    pred = [["PER_B", "PER_I", "O"]]
+    metrics = compute_entity_metrics(true, pred)
+    assert type(metrics["per_entity"]["PER"]["support"]) is int
 
 
 # ---------------------------------------------------------------------------
