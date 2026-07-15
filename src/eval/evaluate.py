@@ -236,21 +236,23 @@ def compute_entity_metrics(
 
     per_entity = {
         label: {
-            "precision": vals["precision"],
-            "recall": vals["recall"],
-            "f1": vals["f1-score"],
-            "support": vals["support"],
+            "precision": float(vals["precision"]),
+            "recall": float(vals["recall"]),
+            "f1": float(vals["f1-score"]),
+            # seqeval returns numpy int64 for support, which json.dumps
+            # can't serialize on its own.
+            "support": int(vals["support"]),
         }
         for label, vals in report.items()
         if label not in ("micro avg", "macro avg", "weighted avg")
     }
 
     micro = {
-        "precision": precision_score(true_labels, pred_labels, average="micro", zero_division=0),
-        "recall": recall_score(true_labels, pred_labels, average="micro", zero_division=0),
-        "f1": f1_score(true_labels, pred_labels, average="micro", zero_division=0),
+        "precision": float(precision_score(true_labels, pred_labels, average="micro", zero_division=0)),
+        "recall": float(recall_score(true_labels, pred_labels, average="micro", zero_division=0)),
+        "f1": float(f1_score(true_labels, pred_labels, average="micro", zero_division=0)),
     }
-    macro_f1 = f1_score(true_labels, pred_labels, average="macro", zero_division=0)
+    macro_f1 = float(f1_score(true_labels, pred_labels, average="macro", zero_division=0))
 
     return {"per_entity": per_entity, "micro": micro, "macro_f1": macro_f1}
 
