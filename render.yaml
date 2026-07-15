@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: financial-ner-backend
+    env: docker
+    dockerfilePath: ./deploy/render/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: MODEL_DIR
+        value: kavyaagar/financial-ner-extended
