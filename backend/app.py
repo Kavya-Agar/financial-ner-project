@@ -22,7 +22,7 @@ from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from transformers import AutoModelForTokenClassification, AutoTokenizer
 
@@ -54,6 +54,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL_DIR = "models/financial-ner-extended"
 DEFAULT_MAX_LENGTH = 512
+DEFAULT_STATIC_DIR = str(_REPO_ROOT / "frontend" / "dist")
 
 
 def _resolve_max_length(tokenizer, model) -> int:
@@ -153,14 +154,18 @@ def merge_entities(text, offset_mapping, word_ids, label_ids, scores, id2label):
     ]
 
 
-def create_app(model_dir: str | None = None) -> Flask:
+def create_app(model_dir: str | None = None, static_dir: str | None = None) -> Flask:
     """Application factory.
 
     ``model_dir`` overrides the ``MODEL_DIR`` env var -- tests use this to
     point at an offline fixture without touching the environment or
-    re-importing this module.
+    re-importing this module. ``static_dir`` overrides the built React
+    app's location (defaults to ``frontend/dist``, which only exists after
+    ``npm run build`` -- e.g. inside the Docker image); if it's missing,
+    the API still works, "/" just returns a 404 instead of the app shell.
     """
-    app = Flask(__name__)
+    resolved_static_dir = static_dir or os.environ.get("STATIC_DIR", DEFAULT_STATIC_DIR)
+    app = Flask(__name__, static_folder=resolved_static_dir, static_url_path="")
     CORS(app)  # portfolio demo: allow all origins
 
     resolved_model_dir = model_dir or os.environ.get("MODEL_DIR", DEFAULT_MODEL_DIR)
@@ -190,6 +195,13 @@ def create_app(model_dir: str | None = None) -> Flask:
             # /health must never itself crash the process.
             logger.error("Health check failed unexpectedly", exc_info=True)
             return jsonify({"status": "ok", "model_loaded": False}), 200
+
+    @app.get("/")
+    def index():
+        index_path = Path(app.static_folder or "") / "index.html"
+        if not index_path.is_file():
+            return jsonify({"error": "Frontend build not found. Run `npm run build` in frontend/."}), 404
+        return send_from_directory(app.static_folder, "index.html")
 
     @app.post("/predict")
     def predict():

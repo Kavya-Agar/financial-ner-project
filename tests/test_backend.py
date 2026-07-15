@@ -106,6 +106,32 @@ def test_health_model_not_loaded_still_200(broken_client):
 
 
 # --------------------------------------------------------------------------
+# / (static frontend build)
+# --------------------------------------------------------------------------
+
+
+def test_index_serves_built_frontend_when_present(tiny_model_dir, tmp_path):
+    static_dir = tmp_path / "dist"
+    static_dir.mkdir()
+    (static_dir / "index.html").write_text("<html><body>financial-ner demo</body></html>")
+
+    app = create_app(model_dir=tiny_model_dir, static_dir=str(static_dir))
+    resp = app.test_client().get("/")
+
+    assert resp.status_code == 200
+    assert b"financial-ner demo" in resp.data
+
+
+def test_index_404s_when_frontend_not_built(tiny_model_dir, tmp_path):
+    static_dir = tmp_path / "dist-not-built"  # deliberately not created
+
+    app = create_app(model_dir=tiny_model_dir, static_dir=str(static_dir))
+    resp = app.test_client().get("/")
+
+    assert resp.status_code == 404
+
+
+# --------------------------------------------------------------------------
 # /predict happy path
 # --------------------------------------------------------------------------
 
