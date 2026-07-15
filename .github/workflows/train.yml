@@ -73,6 +73,6 @@ jobs:
       - name: Push trained models to Hugging Face
         if: ${{ inputs.push_to_hub && env.HF_TOKEN != '' }}
         run: |
-          pip install -U "huggingface_hub[cli]"
-          huggingface-cli upload kavyaagar/financial-ner-v1 models/financial-ner-v1 . --token "$HF_TOKEN" --repo-type model
-          huggingface-cli upload kavyaagar/financial-ner-extended models/financial-ner-extended . --token "$HF_TOKEN" --repo-type model --commit-message "Trained via GitHub Actions run ${{ github.run_id }}"
+          pip install -U "huggingface_hub"
+          hf upload kavyaagar/financial-ner-v1 models/financial-ner-v1 . --token "$HF_TOKEN" --repo-type model
+          hf upload kavyaagar/financial-ner-extended models/financial-ner-extended . --token "$HF_TOKEN" --repo-type model --commit-message "Trained via GitHub Actions run ${{ github.run_id }}"
