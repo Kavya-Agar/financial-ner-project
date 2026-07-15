@@ -30,7 +30,7 @@ export async function predictEntities(text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     });
-  } catch (err) {
+  } catch {
     throw new ApiError(
       'Could not reach the analysis server. Check your connection and try again.',
       { kind: 'network' },
@@ -41,7 +41,7 @@ export async function predictEntities(text) {
   let parseFailed = false;
   try {
     body = await response.json();
-  } catch (err) {
+  } catch {
     parseFailed = true;
   }
 
